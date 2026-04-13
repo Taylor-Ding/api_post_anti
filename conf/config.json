@@ -1,0 +1,84 @@
+{
+  "_comment": "查-发-查-比 分布式系统数据一致性核对工具 - 配置文件",
+
+  "databases": {
+    "dcdpdb1": {
+      "host": "localhost",
+      "port": 5432,
+      "user": "postgres",
+      "password": "123456",
+      "database": "dcdpdb1",
+      "charset": "utf8mb4",
+      "connect_timeout": 10
+    },
+    "dcdpdb2": {
+      "host": "localhost",
+      "port": 5432,
+      "user": "postgres",
+      "password": "123456",
+      "database": "dcdpdb2",
+      "charset": "utf8mb4",
+      "connect_timeout": 10
+    },
+    "dcdpdb3": {
+      "host": "localhost",
+      "port": 5432,
+      "user": "postgres",
+      "password": "123456",
+      "database": "dcdpdb3",
+      "charset": "utf8mb4",
+      "connect_timeout": 10
+    },
+    "dcdpdb4": {
+      "host": "localhost",
+      "port": 5432,
+      "user": "postgres",
+      "password": "123456",
+      "database": "dcdpdb4",
+      "charset": "utf8mb4",
+      "connect_timeout": 10
+    }
+  },
+
+  "api": {
+    "base_url": "http://localhost:8080",
+    "endpoint": "/online-service",
+    "route_query_url": "http://localhost:8080/testtool/routeQuery",
+    "timeout_seconds": 30,
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    }
+  },
+
+  "db_routing": {
+    "db_prefix": "dcdpdb",
+    "table_prefix": "tb_dpmst_medium_",
+    "total_shards": 8,
+    "shards_per_db": 2
+  },
+
+  "diff": {
+    "ignore_order": true,
+    "exclude_regex_paths": [
+      "\\['last_mod_stamp'\\]",
+      "\\['create_stamp'\\]",
+      "\\['host_dt'\\]",
+      "\\['resved_field_1'\\]",
+      "\\['job_zone_no'\\]",
+      "\\['optimist_lock_ver_no'\\]",
+      "\\['tam_proo_field_info'\\]"
+    ],
+    "_comment_exclude": "上方路径使用 DeepDiff 的 exclude_regex_paths 格式，每条为正则表达式"
+  },
+
+  "logging": {
+    "level": "DEBUG",
+    "log_dir": "logs",
+    "log_filename": "sync_test.log",
+    "max_bytes": 52428800,
+    "backup_count": 10,
+    "format": "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+    "date_format": "%Y-%m-%d %H:%M:%S"
+  }
+}
