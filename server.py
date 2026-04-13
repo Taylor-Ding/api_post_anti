@@ -154,5 +154,26 @@ def verify_pipeline():
         return jsonify({"error": f"后端引擎执行抛错: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    print("====== Flask Backend Engine Started at http://127.0.0.1:5000 ======")
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    import threading
+    import webbrowser
+    import time
+
+    HOST = "127.0.0.1"
+    PORT = 5000
+    url = f"http://{HOST}:{PORT}"
+
+    print(f"====== Flask Backend Engine Started at {url} ======")
+    print("  ✅ 服务启动成功，浏览器将自动打开...")
+    print("  ℹ️  若浏览器未自动打开，请手动访问:", url)
+    print("  ⚠️  关闭此窗口将停止服务，请勿关闭！")
+
+    # 打包为单体可执行文件时，自动唤起默认浏览器
+    def _open_browser():
+        time.sleep(1.5)
+        webbrowser.open(url)
+
+    browser_thread = threading.Thread(target=_open_browser, daemon=True)
+    browser_thread.start()
+
+    # debug=False + use_reloader=False：PyInstaller 冻结环境中必须关闭 reloader
+    app.run(host=HOST, port=PORT, debug=False, use_reloader=False, threaded=True)

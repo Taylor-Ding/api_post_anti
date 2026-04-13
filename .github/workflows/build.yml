@@ -24,16 +24,20 @@ jobs:
             asset_name: API_Test_Tool_Linux
             sep: ":"
             ext: ""
+            extra_args: ""
           - os: windows-latest
             artifact_name: API_Test_Tool_Windows
             asset_name: API_Test_Tool_Windows.exe
             sep: ";"
             ext: ".exe"
+            # noconsole: hides the black terminal window on Windows double-click
+            extra_args: "--noconsole"
           - os: macos-latest
             artifact_name: API_Test_Tool_MacOS
             asset_name: API_Test_Tool_MacOS
             sep: ":"
             ext: ""
+            extra_args: ""
 
     steps:
     - name: Checkout code
@@ -73,8 +77,21 @@ jobs:
         pyinstaller --name "${{ matrix.artifact_name }}" \
           --add-data "frontend/dist${{ matrix.sep }}frontend/dist" \
           --add-data "conf${{ matrix.sep }}conf" \
+          --hidden-import flask \
+          --hidden-import werkzeug \
+          --hidden-import werkzeug.serving \
+          --hidden-import werkzeug.debug \
+          --hidden-import jinja2 \
+          --hidden-import click \
+          --hidden-import deepdiff \
+          --hidden-import pymysql \
+          --hidden-import requests \
+          --hidden-import psycopg2 \
+          --collect-all flask \
+          --collect-all werkzeug \
           --onefile \
           --clean \
+          ${{ matrix.extra_args }} \
           server.py
 
     - name: Upload Artifact
