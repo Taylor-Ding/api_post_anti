@@ -4,12 +4,11 @@ on:
   push:
     branches: [ "main" ]
     tags:
-      - 'v*' # Trigger when a tag starting with v is pushed (e.g., v1.0.0)
+      - 'v*'
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
 
-# Need write permission for releases
 permissions:
   contents: write
 
@@ -22,13 +21,19 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_name: API_Test_Tool_Linux
+            asset_name: API_Test_Tool_Linux
             sep: ":"
+            ext: ""
           - os: windows-latest
             artifact_name: API_Test_Tool_Windows
+            asset_name: API_Test_Tool_Windows.exe
             sep: ";"
+            ext: ".exe"
           - os: macos-latest
             artifact_name: API_Test_Tool_MacOS
+            asset_name: API_Test_Tool_MacOS
             sep: ":"
+            ext: ""
 
     steps:
     - name: Checkout code
@@ -76,15 +81,11 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact_name }}
-        path: |
-          dist/${{ matrix.artifact_name }}
-          dist/${{ matrix.artifact_name }}.exe
+        path: dist/${{ matrix.asset_name }}
 
-    - name: Release Files
+    - name: Publish to GitHub Release
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/v')
       with:
-        files: |
-          dist/${{ matrix.artifact_name }}
-          dist/${{ matrix.artifact_name }}.exe
+        files: dist/${{ matrix.asset_name }}
         generate_release_notes: true
