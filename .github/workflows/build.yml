@@ -1,0 +1,73 @@
+name: Build Standalone Executables
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: API_Test_Tool_Linux
+            sep: ":"
+          - os: windows-latest
+            artifact_name: API_Test_Tool_Windows
+            sep: ";"
+          - os: macos-latest
+            artifact_name: API_Test_Tool_MacOS
+            sep: ":"
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v3
+      with:
+        version: 9
+
+    - name: Build Frontend
+      working-directory: ./frontend
+      run: |
+        pnpm install
+        pnpm run build
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build with PyInstaller
+      shell: bash
+      run: |
+        pyinstaller --name "${{ matrix.artifact_name }}" \
+          --add-data "frontend/dist${{ matrix.sep }}frontend/dist" \
+          --add-data "conf${{ matrix.sep }}conf" \
+          --onefile \
+          --clean \
+          server.py
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: dist/${{ matrix.artifact_name }}*
